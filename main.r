@@ -1,3 +1,7 @@
+library(readr)
+library(dplyr)
+library(moments)
+
 data <- read.csv("https://raw.githubusercontent.com/dat-analytics/data_access_2_t2_2023/main/z5373431_z5373431-Assessment2Data.csv", encoding="UTF-8")
 data
 trimmedData <- data[,2:14]
@@ -10,6 +14,8 @@ trimmedData
 
 # Total Spend
 boxplot(trimmedData$C_TotalSpend)
+mean(trimmedData$C_TotalSpend)
+median(trimmedData$C_TotalSpend)
 
 # Gender
 male <- nrow(trimmedData[trimmedData$C_Gender == 'M',])
@@ -20,6 +26,12 @@ title(main="Gender", cex.main=1.5)
 
 # Age
 boxplot(trimmedData$C_Age)
+min(trimmedData$C_Age)
+max(trimmedData$C_Age)
+# Might want to make a grouped bar chart for this one
+mean(trimmedData$C_Age)
+median(trimmedData$C_Age)
+kurtosis(trimmedData$C_Age)
 
 # State
 states <- table(trimmedData$C_State)
@@ -45,7 +57,10 @@ barplot(table(trimmedData$App_SatisfactionRating))
 
 # App Tenure
 barplot(table(trimmedData$App_Tenure), xlab = "Days")
-# Posted a question regarding this variable, I think its just a typo in the dictionary
+# Posted a question on the forum regarding this variable, I think its just a typo in the dictionary
+mean(trimmedData$App_Tenure)
+median(trimmedData$App_Tenure)
+kurtosis(trimmedData$App_Tenure)
 
 # App Referral
 barplot(table(trimmedData$App_Referral))
