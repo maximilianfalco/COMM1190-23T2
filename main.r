@@ -72,3 +72,10 @@ title(main="Referral vs No Referral", cex.main=1.5)
 
 # App Promotion
 barplot(table(trimmedData$App_Promotion))
+
+# Box plot of Customer Satisfaction and Spending
+satisfaction <- replace(trimmedData$App_SatisfactionRating, trimmedData$App_SatisfactionRating == "H", 1)
+satisfaction <- replace(satisfaction, satisfaction == "L", 0)
+# 1 here represents 'H' and 0 represents 'L'
+spending <- trimmedData$C_TotalSpend
+boxplot(spending ~ satisfaction)
