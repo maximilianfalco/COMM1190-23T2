@@ -127,6 +127,9 @@ cor(promotion, spending)
 #########################################################################################################################
 
 trimmedData
+# Make a dummy variable for the satisfied condition of the variable
+trimmedData$Satisfied <- ifelse(trimmedData$App_SatisfactionRating == "H", 1,0)
+trimmedData
 set.seed(1)
 # 70/30 train test split
 split <- 0.70*2000
@@ -134,7 +137,12 @@ train <- sample(2000, split)
 trimmedDataTrain <- trimmedData[train,]
 trimmedDataTest <- trimmedData[-train,]
 
+# Decision Tree
 tree <- rpart(App_SatisfactionRating ~ App_Referral + App_Tenure, data = trimmedDataTrain)
 rpart.plot(tree, yesno = 2)
 tree <- rpart(App_SatisfactionRating ~ C_Age + App_Referral, data = trimmedDataTrain)
 rpart.plot(tree, yesno = 2)
+
+# Logistic Regression for Satisfaction
+logistic <- glm(Satisfied ~ App_Referral + C_TotalSpend, family = binomial(), data = trimmedDataTrain)
+summary(logistic)
