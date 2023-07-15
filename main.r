@@ -146,3 +146,8 @@ rpart.plot(tree, yesno = 2)
 # Logistic Regression for Satisfaction
 logistic <- glm(Satisfied ~ App_Referral + C_TotalSpend, family = binomial(), data = trimmedDataTrain)
 summary(logistic)
+
+# Linear Regression for Sales
+linear <- lm(C_TotalSpend ~ C_Age, data = trimmedDataTrain)
+summary(linear)
+confint(linear)
