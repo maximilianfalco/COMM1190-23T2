@@ -129,6 +129,7 @@ cor(promotion, spending)
 trimmedData
 # Make a dummy variable for the satisfied condition of the variable
 trimmedData$Satisfied <- ifelse(trimmedData$App_SatisfactionRating == "H", 1,0)
+trimmedData$Promotion <- ifelse(trimmedData$App_Promotion == "Yes", 1,0)
 trimmedData
 set.seed(1)
 # 70/30 train test split
@@ -148,6 +149,6 @@ logistic <- glm(Satisfied ~ App_Referral + C_TotalSpend, family = binomial(), da
 summary(logistic)
 
 # Linear Regression for Sales
-linear <- lm(C_TotalSpend ~ C_Age, data = trimmedDataTrain)
+linear <- lm(C_TotalSpend ~ C_Age + Promotion, data = trimmedDataTrain)
 summary(linear)
 confint(linear)
