@@ -22,6 +22,7 @@ trimmedData
 boxplot(trimmedData$C_TotalSpend)
 mean(trimmedData$C_TotalSpend)
 median(trimmedData$C_TotalSpend)
+boxplot(trimmedData$C_TotalSpend ~ trimmedData$C_Product)
 
 # Gender
 male <- nrow(trimmedData[trimmedData$C_Gender == 'M',])
@@ -46,7 +47,7 @@ age_50s <- nrow(trimmedData[trimmedData$C_Age > 49 & trimmedData$C_Age < 60,])
 age_60s <- nrow(trimmedData[trimmedData$C_Age > 59 & trimmedData$C_Age < 70,])
 
 barplot(c(age_10s,age_20s,age_30s,age_40s,age_50s,age_60s), xlab = "Age", ylim = c(0,1200), names.arg = c("10s","20s","30s","40s","50s","60s"))
-
+plot(trimmedData$C_Age, trimmedData$C_TotalSpend)
 # State
 states <- table(trimmedData$C_State)
 barplot(states)
@@ -65,6 +66,7 @@ barplot(table(trimmedData$C_ShoppingDuration), xlab = "Minutes")
 
 # Time of Shopping
 barplot(table(trimmedData$C_TimeOfShopping))
+boxplot(trimmedData$C_TotalSpend ~ trimmedData$C_TimeOfShopping)
 
 # App Satisfaction
 barplot(table(trimmedData$App_SatisfactionRating))
@@ -145,10 +147,45 @@ tree <- rpart(App_SatisfactionRating ~ C_Age + App_Referral, data = trimmedDataT
 rpart.plot(tree, yesno = 2)
 
 # Logistic Regression for Satisfaction
-logistic <- glm(Satisfied ~ App_Referral + C_TotalSpend, family = binomial(), data = trimmedDataTrain)
+logistic <- glm(Satisfied ~ App_Referral + C_TotalSpend + Promotion, family = binomial(), data = trimmedDataTrain)
 summary(logistic)
 
 # Linear Regression for Sales
 linear <- lm(C_TotalSpend ~ C_Age + Promotion, data = trimmedDataTrain)
 summary(linear)
 confint(linear)
+
+# Spending vs Duration
+promoYes <- trimmedData[trimmedData$Promotion == 1,]
+promoNo <- trimmedData[trimmedData$Promotion == 0,]
+mean(promoYes$C_TotalSpend)
+mean(promoNo$C_TotalSpend)
+sum(promoYes$C_TotalSpend)
+sum(promoNo$C_TotalSpend)
+
+# unidays, look at younger age groups
+# split down 34 years old according to median and mean
+# promotion affecting their sales
+less <- trimmedData[trimmedData$C_Age < 35,]
+more <- trimmedData[trimmedData$C_Age > 34,]
+
+par(mfrow=c(1,2))
+boxplot(less$C_TotalSpend ~ less$App_Promotion, ylim = c(0,2000), ylab = "Total Spend", xlab = "Promotion for Younger than or equal to 34yo")
+boxplot(more$C_TotalSpend ~ more$App_Promotion, ylim = c(0,2000), ylab = "Total Spend", xlab = "Promotion for Older than 34yo")
+par(mfrow=c(1,1))
+
+lessYes <- less[less$App_Promotion == "Yes",]
+lessNo <- less[less$App_Promotion == "No",]
+moreYes <- more[more$App_Promotion == "Yes",]
+moreNo <- more[more$App_Promotion == "No",]
+
+mean(lessNo$C_TotalSpend)
+mean(lessYes$C_TotalSpend)
+diff <- mean(lessYes$C_TotalSpend) - mean(lessNo$C_TotalSpend)
+diff/mean(lessNo$C_TotalSpend)*100
+
+mean(moreNo$C_TotalSpend)
+mean(moreYes$C_TotalSpend)
+diff <- mean(moreYes$C_TotalSpend) - mean(moreNo$C_TotalSpend)
+diff/mean(moreNo$C_TotalSpend)*100
+
