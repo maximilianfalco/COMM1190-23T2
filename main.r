@@ -48,6 +48,7 @@ age_60s <- nrow(trimmedData[trimmedData$C_Age > 59 & trimmedData$C_Age < 70,])
 
 barplot(c(age_10s,age_20s,age_30s,age_40s,age_50s,age_60s), xlab = "Age", ylim = c(0,1200), names.arg = c("10s","20s","30s","40s","50s","60s"))
 plot(trimmedData$C_Age, trimmedData$C_TotalSpend)
+
 # State
 states <- table(trimmedData$C_State)
 barplot(states)
@@ -73,7 +74,6 @@ barplot(table(trimmedData$App_SatisfactionRating))
 
 # App Tenure
 barplot(table(trimmedData$App_Tenure), xlab = "Days")
-# Posted a question on the forum regarding this variable, I think its just a typo in the dictionary
 mean(trimmedData$App_Tenure)
 median(trimmedData$App_Tenure)
 kurtosis(trimmedData$App_Tenure)
@@ -98,17 +98,6 @@ boxplot(spending ~ satisfaction)
 satisfaction <- as.numeric(satisfaction)
 cor(satisfaction, spending)
 
-# Box plot of Customer Satisfaction and Referrals
-referral <- trimmedData$App_Referral
-boxplot(referral ~ satisfaction)
-referralSatisfaction <- trimmedData[, c('App_SatisfactionRating','App_Referral')]
-referralSatisfied <- referralSatisfaction[referralSatisfaction$App_SatisfactionRating == "H",]
-referralNotSatisfied <- referralSatisfaction[referralSatisfaction$App_SatisfactionRating == "L",]
-
-mean(referralSatisfied$App_Referral)
-mean(referralNotSatisfied$App_Referral)
-# Data suggests that with high satisfaction ratings, customers are more likely to refer ASAL's products and app
-
 # Box plot of Referrals and Promotion
 yesPromotion <- trimmedData[trimmedData$App_Promotion == "Yes",]
 noPromotion <- trimmedData[trimmedData$App_Promotion == "No",]
@@ -123,6 +112,29 @@ promotion <- replace(promotion, promotion == "Yes", 1)
 promotion <- replace(promotion, promotion == "No", 0)
 promotion <- as.numeric(promotion)
 cor(promotion, spending)
+
+################################################################################
+
+# Box plot of Product Distribution and Shopping Duration
+boxplot(trimmedData$C_ShoppingDuration ~ trimmedData$C_Product)
+
+# Scatter plot of Total Spend and Shopping Duration
+plot(trimmedData$C_TotalSpend ~ trimmedData$C_ShoppingDuration)
+cor(trimmedData$C_TotalSpend, trimmedData$C_ShoppingDuration)
+
+# Box plot of Customer Satisfaction and Referrals
+boxplot(trimmedData$App_Referral ~ trimmedData$App_SatisfactionRating)
+satisfied <- trimmedData[trimmedData$App_SatisfactionRating == "H",]
+notSatisfied <- trimmedData[trimmedData$App_SatisfactionRating == "L",]
+mean(satisfied$App_Referral)
+mean(notSatisfied$App_Referral)
+# Basically means that referral numbers are higher when satisfied
+
+# Box plot of App Tenure and App Satisfaction
+boxplot(trimmedData$App_Tenure ~ trimmedData$App_SatisfactionRating)
+mean(satisfied$App_Tenure)
+mean(notSatisfied$App_Tenure)
+diff <- mean(satisfied$App_Tenure) - mean(notSatisfied$App_Tenure) 
 
 #########################################################################################################################
 ## Predictive Analysis                                                                                                 ##
@@ -147,7 +159,8 @@ tree <- rpart(App_SatisfactionRating ~ C_Age + App_Referral, data = trimmedDataT
 rpart.plot(tree, yesno = 2)
 
 # Logistic Regression for Satisfaction
-logistic <- glm(Satisfied ~ App_Referral + C_TotalSpend + Promotion, family = binomial(), data = trimmedDataTrain)
+trimmedData
+logistic <- glm(Satisfied ~ App_Referral + App_Tenure + Promotion + C_Age, family = binomial(), data = trimmedDataTrain)
 summary(logistic)
 
 # Linear Regression for Sales
@@ -155,17 +168,13 @@ linear <- lm(C_TotalSpend ~ C_Age + Promotion, data = trimmedDataTrain)
 summary(linear)
 confint(linear)
 
-# Spending vs Duration
+# Spending and Promotions
 promoYes <- trimmedData[trimmedData$Promotion == 1,]
 promoNo <- trimmedData[trimmedData$Promotion == 0,]
 mean(promoYes$C_TotalSpend)
 mean(promoNo$C_TotalSpend)
-sum(promoYes$C_TotalSpend)
-sum(promoNo$C_TotalSpend)
 
-# unidays, look at younger age groups
 # split down 34 years old according to median and mean
-# promotion affecting their sales
 less <- trimmedData[trimmedData$C_Age < 35,]
 more <- trimmedData[trimmedData$C_Age > 34,]
 
